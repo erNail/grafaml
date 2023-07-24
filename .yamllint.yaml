@@ -1,0 +1,13 @@
+---
+extends: "default"
+
+rules:
+  quoted-strings:
+    quote-type: "double"
+  indentation:
+    spaces: 2
+  line-length:
+    max: 140
+  comments:
+    min-spaces-from-content: 1
+...
