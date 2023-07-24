@@ -79,7 +79,7 @@ jobs:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         run: >-
           echo version="$(npx semantic-release --dry-run |
-          grep -Po '(?<=the next release version is )\d+\.\d+\.\d+(?:-[a-zA-Z0-9.]+)?')"
+          grep -Po '(?<=t|The next release version is )\d+\.\d+\.\d+(?:-[a-zA-Z0-9.]+)?')"
           >> "$GITHUB_OUTPUT"
       - name: "Echo new version"
         run: "echo \"The new version is ${{ steps.determineVersion.outputs.version }}\""
