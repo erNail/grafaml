@@ -141,7 +141,7 @@ If you want to use Helmfile, here is an example `helmfile.yaml`:
 ```yaml
 repositories:
   - name: "ernail"
-    url: "registry-1.docker.io/ernail/grafaml"
+    url: "registry-1.docker.io/ernail"
     oci: true
 
 releases:
