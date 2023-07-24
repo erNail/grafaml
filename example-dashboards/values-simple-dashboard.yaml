@@ -1,0 +1,30 @@
+---
+title: "Simple Dashboard"
+panels:
+  panelWidth: 12
+  panelHeight: 8
+  list:
+    - title: "Prometheus Targets Up"
+      type: "stat"
+      targets:
+        - expr: "up"
+
+    - title: "Resource Usage in Percent"
+      description: "Memory and CPU Usage"
+      type: "stat"
+      targets:
+        - expr: "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100"
+          legendFormat: "Memory Usage"
+        - expr: "sum by (instance, job)(avg by (mode, instance) (rate(node_cpu_seconds_total{mode!='idle'}[2m]))) * 100"
+          legendFormat: "CPU Usage"
+
+    - title: "Memory Usage in Percent over Time"
+      type: "timeseries"
+      targets:
+        - expr: "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100"
+
+    - title: "CPU Usage in Percent over Time"
+      type: "timeseries"
+      targets:
+        - expr: "sum by (instance, job) (avg by (mode, instance) (rate(node_cpu_seconds_total{mode!='idle'}[2m])))"
+...
