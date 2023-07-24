@@ -1,0 +1,84 @@
+---
+title: "Node Dashboard"
+tags:
+  - "grafaml"
+  - "node-exporter"
+graphTooltip: "2"
+panels:
+  panelWidth: 12
+  panelHeight: 8
+  list:
+    - title: "Prometheus Targets Up"
+      type: "stat"
+      targets:
+        - expr: "up"
+          legendFormat: "Job: {{ job }}"
+      fieldConfig:
+        defaults:
+          thresholds:
+            steps:
+              - color: "semi-dark-blue"
+      options:
+        colorMode: "background"
+        graphMode: "none"
+        justifyMode: "center"
+
+    - title: "Resource Usage"
+      type: "stat"
+      targets:
+        - expr: "1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)"
+          legendFormat: "Memory Usage"
+        - expr: "sum by (instance, job) (avg by (mode, instance) (rate(node_cpu_seconds_total{mode!='idle'}[2m])))"
+          legendFormat: "CPU Usage"
+        - expr: "1- node_filesystem_avail_bytes{mountpoint='/'} / node_filesystem_size_bytes{mountpoint='/'}"
+          legendFormat: "Disk Usage"
+      fieldConfig:
+        defaults:
+          unit: "percentunit"
+          thresholds:
+            steps:
+              - color: "semi-dark-blue"
+      options:
+        colorMode: "background"
+        graphMode: "none"
+        justifyMode: "center"
+
+    - title: "Memory Usage over Time"
+      type: "timeseries"
+      targets:
+        - expr: "1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)"
+      fieldConfig:
+        defaults:
+          unit: "percentunit"
+          min: 0
+          max: 1
+
+    - title: "Disk Usage over Time"
+      type: "timeseries"
+      targets:
+        - expr: "1- node_filesystem_avail_bytes{mountpoint='/'} / node_filesystem_size_bytes{mountpoint='/'}"
+      fieldConfig:
+        defaults:
+          unit: "percentunit"
+          min: 0
+          max: 1
+
+    - title: "CPU Usage over Time"
+      type: "timeseries"
+      targets:
+        - expr: "sum by (instance, job) (avg by (mode, instance) (rate(node_cpu_seconds_total{mode!='idle'}[2m])))"
+      fieldConfig:
+        defaults:
+          unit: "percentunit"
+          min: 0
+          max: 1
+
+    - title: "Temperature over Time"
+      type: "timeseries"
+      targets:
+        - expr: "node_hwmon_temp_celsius"
+      fieldConfig:
+        defaults:
+          min: 0
+          max: 100
+...
