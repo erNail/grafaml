@@ -1,0 +1,7 @@
+---
+releases:
+  - name: "grafaml"
+    chart: "./"
+    values:
+      - "./values.yaml"
+...

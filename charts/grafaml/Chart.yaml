@@ -1,0 +1,8 @@
+---
+apiVersion: "v2"
+name: "grafaml"
+description: "A Helm chart for generating Grafana Dashboards from YAML"
+type: "application"
+version: "0.0.0"
+appVersion: "10.0.2"
+...

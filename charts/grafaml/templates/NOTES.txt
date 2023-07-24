@@ -1,0 +1,9 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your release is named {{ .Release.Name }} and deployed into the {{ .Release.Namespace }} namespace.
+
+To check the status of the deployment, you can run:
+
+```bash
+kubectl get configmap -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }}
+```
