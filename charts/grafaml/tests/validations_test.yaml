@@ -1,0 +1,43 @@
+---
+suite: "Test Configmap"
+templates:
+  - "tests/validations.yaml"
+release:
+  name: "test-release"
+  namespace: "test-namespace"
+tests:
+  - it: "Should fail to render if style is not 'dark' or 'light'"
+    set:
+      style: "not-dark"
+    asserts:
+      - failedTemplate:
+          errorMessage: "style must be either 'dark' or 'light'"
+
+  - it: "Should fail to render if timezone is not 'utc' or 'browser'"
+    set:
+      timezone: "not-utc"
+    asserts:
+      - failedTemplate:
+          errorMessage: "timezone must be either 'utc' or 'browser'"
+
+  - it: "Should fail to render if graphTooltip is not 0, 1 or 2."
+    set:
+      graphTooltip: 5
+    asserts:
+      - failedTemplate:
+          errorMessage: "graphTooltip must be 0, 1 or 2."
+
+  - it: "Should fail to render if panels.panelWidth is greater than 24"
+    set:
+      panels.panelWidth: 25
+    asserts:
+      - failedTemplate:
+          errorMessage: "panels.panelWidth must not be greater than 24"
+
+  - it: "Should fail to render if panels.panelWidth is not a factor of 24"
+    set:
+      panels.panelWidth: 5
+    asserts:
+      - failedTemplate:
+          errorMessage: "panels.panelWidth must be a factor of 24"
+...

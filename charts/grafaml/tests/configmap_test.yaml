@@ -1,0 +1,114 @@
+---
+suite: "Test Configmap"
+templates:
+  - "configmap.yaml"
+release:
+  name: "test-release"
+  namespace: "test-namespace"
+tests:
+  - it: "Should render ConfigMap with default values"
+    asserts:
+      - isKind:
+          of: "ConfigMap"
+      - exists:
+          path: "data[\"test-release-grafaml.json\"]"
+      - matchRegex:
+          path: "data[\"test-release-grafaml.json\"]"
+          pattern: >-
+            "title": "Grafana Dashboard"
+  - it: "Should render ConfigMap with dashboard values 'values-node-dashboard.yaml'"
+    values:
+      - "../../../example-dashboards/values-node-dashboard.yaml"
+    asserts:
+      - isKind:
+          of: "ConfigMap"
+      - exists:
+          path: "data[\"test-release-grafaml.json\"]"
+      - matchRegex:
+          path: "data[\"test-release-grafaml.json\"]"
+          pattern: >-
+            "title": "Node Dashboard"
+  - it: "Should render ConfigMap with dashboard values 'values-simple-dashboard.yaml'"
+    values:
+      - "../../../example-dashboards/values-simple-dashboard.yaml"
+    asserts:
+      - isKind:
+          of: "ConfigMap"
+      - exists:
+          path: "data[\"test-release-grafaml.json\"]"
+      - matchRegex:
+          path: "data[\"test-release-grafaml.json\"]"
+          pattern: >-
+            "title": "Simple Dashboard"
+
+  - it: "Should only render the dashboard json if enabled"
+    set:
+      onlyRenderDashboardJson: true
+    asserts:
+      - notExists:
+          path: "kind"
+      - notExists:
+          path: "data"
+      - exists:
+          path: "editable"
+
+  - it: "Should not render timepicker config with default values"
+    asserts:
+      - notMatchRegex:
+          path: "data[\"test-release-grafaml.json\"]"
+          pattern: >-
+            "timepicker"
+  - it: "Should render timepicker config if enabled"
+    set:
+      timepicker:
+        enabled: true
+    asserts:
+      - matchRegex:
+          path: "data[\"test-release-grafaml.json\"]"
+          pattern: >-
+            "timepicker"
+      - notMatchRegex:
+          path: "data[\"test-release-grafaml.json\"]"
+          pattern: >-
+            "timepicker": {
+              \s*[^}]*enabled": true
+      - matchRegex:
+          path: "data[\"test-release-grafaml.json\"]"
+          pattern: >-
+            "timepicker": {
+              \s*[^}]*enable": true
+
+  - it: "Should not render templating config with default values"
+    asserts:
+      - notMatchRegex:
+          path: "data[\"test-release-grafaml.json\"]"
+          pattern: >-
+            "templating"
+  - it: "Should render templating config if enabled"
+    set:
+      templating:
+        enabled: true
+    asserts:
+      - matchRegex:
+          path: "data[\"test-release-grafaml.json\"]"
+          pattern: >-
+            "templating": {
+              \s*[^}]*list":
+
+  - it: "Should not render annotation config with default values"
+    asserts:
+      - notMatchRegex:
+          path: "data[\"test-release-grafaml.json\"]"
+          pattern: >-
+            "annotations":
+  - it: "Should render annotation config if enabled"
+    set:
+      annotations:
+        enabled: true
+    asserts:
+      - matchRegex:
+          path: "data[\"test-release-grafaml.json\"]"
+          pattern: >-
+            "annotations": {
+              \s*[^}]*list":
+...
