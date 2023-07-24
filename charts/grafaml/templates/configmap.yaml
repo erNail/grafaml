@@ -1,0 +1,60 @@
+{{- if not .Values.onlyRenderDashboardJson }}
+apiVersion: "v1"
+kind: "ConfigMap"
+metadata:
+  name: "{{ include "grafaml.fullname" . }}"
+  labels:
+    {{- include "grafaml.labels" . | nindent 4 }}
+    grafana_dashboard: "1"
+    {{- .Values.extraLabels | toYaml | nindent 4 }}
+data:
+  {{ include "grafaml.fullname" . }}.json: |
+    {{- include "dashboardYaml" . | fromYaml | toPrettyJson | nindent 4 }}
+{{- else }}
+  {{- include "dashboardYaml" . | fromYaml | toPrettyJson }}
+{{- end }}
+
+{{- define "dashboardYaml" -}}
+title: "{{ .Values.title }}"
+uid: "{{ include "grafaml.fullname" . }}"
+style: "{{ .Values.style }}"
+timezone: "{{ .Values.timezone }}"
+editable: "{{ .Values.editable }}"
+graphTooltip: {{ .Values.graphTooltip }}
+refresh: "{{ .Values.refresh }}"
+
+tags:
+  {{ .Values.tags | toYaml | nindent 2 }}
+
+time:
+  {{ .Values.time | toYaml | nindent 2 }}
+
+{{- if .Values.timepicker.enabled }}
+timepicker:
+  {{ omit .Values.timepicker "enabled" | toYaml | nindent 2 }}
+{{ end }}
+
+{{- if .Values.templating.enabled }}
+templating:
+  list:
+    {{ .Values.templating.list | toYaml | nindent 2 }}
+{{- end }}
+
+{{- if .Values.annotations.enabled }}
+annotations:
+  list:
+    {{ .Values.annotations.list | toYaml | nindent 2 }}
+{{- end }}
+
+panels:
+  {{- $totalWidth := 24 }}
+  {{- $panelsPerRow := div $totalWidth .Values.panels.panelWidth }}
+  {{- range $i, $panel := .Values.panels.list }}
+  - gridPos:
+      w: {{ $.Values.panels.panelWidth }}
+      h: {{ $.Values.panels.panelHeight }}
+      x: {{ mul (mod $i $panelsPerRow) $.Values.panels.panelWidth }}
+      "y": {{ mul (floor (div $i $panelsPerRow)) $.Values.panels.panelHeight }}
+    {{- $panel | toYaml | nindent 4 }}
+  {{- end }}
+{{- end }}
