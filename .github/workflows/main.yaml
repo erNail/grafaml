@@ -8,7 +8,7 @@ jobs:
     runs-on: "ubuntu-22.04"
     steps:
       - name: "Checkout repository"
-        uses: "actions/checkout@v3.6.0"
+        uses: "actions/checkout@v4.0.0"
       - name: "Set up python and pip cache"
         uses: "actions/setup-python@v4.7.0"
         with:
@@ -30,7 +30,7 @@ jobs:
       image: "alpine/helm:3.12.3"
     steps:
       - name: "Checkout repository"
-        uses: "actions/checkout@v3.6.0"
+        uses: "actions/checkout@v4.0.0"
       - name: "Run 'helm lint'"
         run: "helm lint ./charts/grafaml"
 
@@ -38,7 +38,7 @@ jobs:
     runs-on: "ubuntu-22.04"
     steps:
       - name: "Checkout repository"
-        uses: "actions/checkout@v3.6.0"
+        uses: "actions/checkout@v4.0.0"
       - name: "Run 'kube-linter'"
         uses: "stackrox/kube-linter-action@v1.0.4"
         with:
@@ -50,7 +50,7 @@ jobs:
       image: "alpine/helm:3.12.3"
     steps:
       - name: "Checkout repository"
-        uses: "actions/checkout@v3.6.0"
+        uses: "actions/checkout@v4.0.0"
       - name: "Install 'Helm Unittest'"
         run: "helm plugin install https://github.com/helm-unittest/helm-unittest.git"
       - name: "Run 'helm unittest'"
@@ -66,7 +66,7 @@ jobs:
       version: "${{ steps.determineVersion.outputs.version }}"
     steps:
       - name: "Checkout repository"
-        uses: "actions/checkout@v3.6.0"
+        uses: "actions/checkout@v4.0.0"
       - name: "Set up node and yarn"
         uses: "actions/setup-node@v3.8.1"
         with:
@@ -97,7 +97,7 @@ jobs:
       image: "alpine/helm:3.12.3"
     steps:
       - name: "Checkout repository"
-        uses: "actions/checkout@v3.6.0"
+        uses: "actions/checkout@v4.0.0"
       - name: "Echo new version"
         run: "echo \"The package will be released with version ${{ needs.determine-version-job.outputs.version }}\""
       - name: "Run 'helm package'"
@@ -117,7 +117,7 @@ jobs:
       pull-requests: "write"
     steps:
       - name: "Checkout repository"
-        uses: "actions/checkout@v3.6.0"
+        uses: "actions/checkout@v4.0.0"
         with:
           persist-credentials: false
       - name: "Set up node and yarn"
