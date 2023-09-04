@@ -68,7 +68,7 @@ jobs:
       - name: "Checkout repository"
         uses: "actions/checkout@v3.6.0"
       - name: "Set up node and yarn"
-        uses: "actions/setup-node@v3.7.0"
+        uses: "actions/setup-node@v3.8.1"
         with:
           node-version: "18.16.1"
       - name: "Install semantic-release"
@@ -121,7 +121,7 @@ jobs:
         with:
           persist-credentials: false
       - name: "Set up node and yarn"
-        uses: "actions/setup-node@v3.7.0"
+        uses: "actions/setup-node@v3.8.1"
         with:
           node-version: "18.16.1"
       - name: "Install semantic-release"
