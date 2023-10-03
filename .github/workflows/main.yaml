@@ -70,7 +70,7 @@ jobs:
       - name: "Set up node and yarn"
         uses: "actions/setup-node@v3.8.1"
         with:
-          node-version: "18.16.1"
+          node-version: "18.18.0"
       - name: "Install semantic-release"
         run: "yarn add semantic-release"
       - name: "Determine version"
@@ -123,7 +123,7 @@ jobs:
       - name: "Set up node and yarn"
         uses: "actions/setup-node@v3.8.1"
         with:
-          node-version: "18.16.1"
+          node-version: "18.18.0"
       - name: "Install semantic-release"
         run: "yarn add semantic-release"
       - name: "Run semantic-release"
