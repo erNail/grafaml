@@ -5,4 +5,9 @@ description: "A Helm chart for generating Grafana Dashboards from YAML"
 type: "application"
 version: "0.0.0"
 appVersion: "10.0.2"
+annotations:
+  artifacthub.io/category: "monitoring-logging"
+  artifacthub.io/links: |
+    - name: source
+      https://github.com/erNail/grafaml
 ...
