@@ -7,7 +7,7 @@ This YAML:
 ```yaml
 title: "Simple Dashboard"
 panels:
-  panelWidth: 12
+  columns: 2
   panelHeight: 8
   list:
     - title: "Prometheus Targets Up"
@@ -77,7 +77,7 @@ It will define a very simple dashboard with only 2 panels:
 ```yaml
 title: "Simple Dashboard"
 panels:
-  panelWidth: 12
+  colums: 2
   panelHeight: 8
   list:
     - title: "Memory Usage in Percent over Time"

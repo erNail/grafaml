@@ -48,13 +48,13 @@ annotations:
 
 panels:
   {{- $totalWidth := 24 }}
-  {{- $panelsPerRow := div $totalWidth .Values.panels.panelWidth }}
+  {{- $panelWidth := div $totalWidth .Values.panels.columns }}
   {{- range $i, $panel := .Values.panels.list }}
   - gridPos:
-      w: {{ $.Values.panels.panelWidth }}
+      w: {{ $panelWidth }}
       h: {{ $.Values.panels.panelHeight }}
-      x: {{ mul (mod $i $panelsPerRow) $.Values.panels.panelWidth }}
-      "y": {{ mul (floor (div $i $panelsPerRow)) $.Values.panels.panelHeight }}
+      x: {{ mul (mod $i $.Values.panels.columns) $panelWidth }}
+      "y": {{ mul (floor (div $i $.Values.panels.columns)) $.Values.panels.panelHeight }}
     {{- $panel | toYaml | nindent 4 }}
   {{- end }}
 {{- end }}
