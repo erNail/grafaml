@@ -1,7 +1,7 @@
 ---
 title: "Simple Dashboard"
 panels:
-  panelWidth: 12
+  columns: 2
   panelHeight: 8
   list:
     - title: "Prometheus Targets Up"

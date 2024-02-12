@@ -5,7 +5,7 @@ tags:
   - "node-exporter"
 graphTooltip: "2"
 panels:
-  panelWidth: 12
+  columns: 2
   panelHeight: 8
   list:
     - title: "Prometheus Targets Up"

@@ -26,18 +26,4 @@ tests:
     asserts:
       - failedTemplate:
           errorMessage: "graphTooltip must be 0, 1 or 2."
-
-  - it: "Should fail to render if panels.panelWidth is greater than 24"
-    set:
-      panels.panelWidth: 25
-    asserts:
-      - failedTemplate:
-          errorMessage: "panels.panelWidth must not be greater than 24"
-
-  - it: "Should fail to render if panels.panelWidth is not a factor of 24"
-    set:
-      panels.panelWidth: 5
-    asserts:
-      - failedTemplate:
-          errorMessage: "panels.panelWidth must be a factor of 24"
 ...
