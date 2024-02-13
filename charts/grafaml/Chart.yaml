@@ -9,5 +9,5 @@ annotations:
   artifacthub.io/category: "monitoring-logging"
   artifacthub.io/links: |
     - name: source
-      https://github.com/erNail/grafaml
+      url: https://github.com/erNail/grafaml
 ...
