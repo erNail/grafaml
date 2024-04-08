@@ -40,7 +40,7 @@ jobs:
       - name: "Checkout repository"
         uses: "actions/checkout@v4.1.5"
       - name: "Run 'kube-linter'"
-        uses: "stackrox/kube-linter-action@v1.0.4"
+        uses: "stackrox/kube-linter-action@v1.0.5"
         with:
           directory: "./charts/grafaml"
 
