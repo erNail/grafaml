@@ -27,7 +27,7 @@ jobs:
   helm-lint-job:
     runs-on: "ubuntu-22.04"
     container:
-      image: "alpine/helm:3.14.1"
+      image: "alpine/helm:3.14.4"
     steps:
       - name: "Checkout repository"
         uses: "actions/checkout@v4.1.5"
@@ -47,7 +47,7 @@ jobs:
   helm-test-job:
     runs-on: "ubuntu-22.04"
     container:
-      image: "alpine/helm:3.14.1"
+      image: "alpine/helm:3.14.4"
     steps:
       - name: "Checkout repository"
         uses: "actions/checkout@v4.1.5"
@@ -94,7 +94,7 @@ jobs:
     if: "needs.determine-version-job.outputs.version != ''"
     runs-on: "ubuntu-22.04"
     container:
-      image: "alpine/helm:3.14.1"
+      image: "alpine/helm:3.14.4"
     steps:
       - name: "Checkout repository"
         uses: "actions/checkout@v4.1.5"
