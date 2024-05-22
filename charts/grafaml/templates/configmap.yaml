@@ -16,7 +16,7 @@ data:
 
 {{- define "dashboardYaml" -}}
 title: "{{ .Values.title }}"
-uid: "{{ include "grafaml.fullname" . }}"
+uid: "{{ include "grafaml.uid" . }}"
 style: "{{ .Values.style }}"
 timezone: "{{ .Values.timezone }}"
 editable: "{{ .Values.editable }}"

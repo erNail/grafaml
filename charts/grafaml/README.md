@@ -28,3 +28,4 @@ Find the full documentation at [Github](https://github.com/erNail/grafaml).
 | timepicker.enabled | bool | `false` | Wether the timepicker configuration is rendered or not.  |
 | timezone | string | `"browser"` | The timezone of the dashboard, either "utc" or "browser". Ref: [Grafana JSON Fields](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#json-fields)  |
 | title | string | `"Grafana Dashboard"` | The displayed title of the Dashboard. Ref: [Grafana JSON Fields](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#json-fields)  |
+| uidOverride | string | `""` | The unique identifier of the Dashboard. String value must be between 8 and 40 characters. Ref: [Grafana JSON Fields](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#json-fields)  |

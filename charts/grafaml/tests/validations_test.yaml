@@ -26,4 +26,18 @@ tests:
     asserts:
       - failedTemplate:
           errorMessage: "graphTooltip must be 0, 1 or 2."
+
+  - it: "Should fail to render if uid has less than 8 characters"
+    set:
+      uidOverride: "uid"
+    asserts:
+      - failedTemplate:
+          errorMessage: "uid must be between 8 and 40 characters"
+
+  - it: "Should fail to render if uid has more than 40 characters"
+    set:
+      uidOverride: "this-is-a-very-long-uid-with-more-than-40-characters"
+    asserts:
+      - failedTemplate:
+          errorMessage: "uid must be between 8 and 40 characters"
 ...
