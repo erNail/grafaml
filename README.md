@@ -95,7 +95,7 @@ and in the [`README.md` of the Helm Chart`](./charts/grafaml/README.md).
 
 You can find example Dashboards in the [`example-dashboards`](./example-dashboards/) directory.
 
-In the next stept, the `values-my-dashboard.json` will be merged with the default [default `values.yaml`](./charts/grafaml/values.yaml),
+In the next step, the `values-my-dashboard.json` will be merged with the default [default `values.yaml`](./charts/grafaml/values.yaml),
 from which the dashboard JSON will be generated.
 
 ### Generating the dashboard JSON
