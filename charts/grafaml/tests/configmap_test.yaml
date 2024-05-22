@@ -2,11 +2,13 @@
 suite: "Test Configmap"
 templates:
   - "configmap.yaml"
+  - "tests/validations.yaml"
 release:
   name: "test-release"
   namespace: "test-namespace"
 tests:
   - it: "Should render ConfigMap with default values"
+    template: "configmap.yaml"
     asserts:
       - isKind:
           of: "ConfigMap"
@@ -17,6 +19,7 @@ tests:
           pattern: >-
             "title": "Grafana Dashboard"
   - it: "Should render ConfigMap with dashboard values 'values-node-dashboard.yaml'"
+    template: "configmap.yaml"
     values:
       - "../../../example-dashboards/values-node-dashboard.yaml"
     asserts:
@@ -29,6 +32,7 @@ tests:
           pattern: >-
             "title": "Node Dashboard"
   - it: "Should render ConfigMap with dashboard values 'values-simple-dashboard.yaml'"
+    template: "configmap.yaml"
     values:
       - "../../../example-dashboards/values-simple-dashboard.yaml"
     asserts:
@@ -42,6 +46,7 @@ tests:
             "title": "Simple Dashboard"
 
   - it: "Should only render the dashboard json if enabled"
+    template: "configmap.yaml"
     set:
       onlyRenderDashboardJson: true
     asserts:
@@ -53,12 +58,14 @@ tests:
           path: "editable"
 
   - it: "Should not render timepicker config with default values"
+    template: "configmap.yaml"
     asserts:
       - notMatchRegex:
           path: "data[\"test-release-grafaml.json\"]"
           pattern: >-
             "timepicker"
   - it: "Should render timepicker config if enabled"
+    template: "configmap.yaml"
     set:
       timepicker:
         enabled: true
@@ -79,12 +86,14 @@ tests:
               \s*[^}]*enable": true
 
   - it: "Should not render templating config with default values"
+    template: "configmap.yaml"
     asserts:
       - notMatchRegex:
           path: "data[\"test-release-grafaml.json\"]"
           pattern: >-
             "templating"
   - it: "Should render templating config if enabled"
+    template: "configmap.yaml"
     set:
       templating:
         enabled: true
@@ -96,12 +105,14 @@ tests:
               \s*[^}]*list":
 
   - it: "Should not render annotation config with default values"
+    template: "configmap.yaml"
     asserts:
       - notMatchRegex:
           path: "data[\"test-release-grafaml.json\"]"
           pattern: >-
             "annotations":
   - it: "Should render annotation config if enabled"
+    template: "configmap.yaml"
     set:
       annotations:
         enabled: true
