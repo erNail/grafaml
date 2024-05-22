@@ -9,3 +9,8 @@
 {{- if not (or (eq (int .Values.graphTooltip) 0) (eq (int .Values.graphTooltip) 1) (eq (int .Values.graphTooltip) 2)) }}
   {{- fail "graphTooltip must be 0, 1 or 2." }}
 {{- end }}
+
+{{- $uid := include "grafaml.uid" . }}
+{{- if (or (lt (len $uid) 8) (gt (len $uid) 40)) }}
+  {{- fail "uid must be between 8 and 40 characters" }}
+{{- end }}

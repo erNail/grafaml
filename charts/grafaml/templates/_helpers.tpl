@@ -60,3 +60,16 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create a uid for the dashboard.
+The uid
+*/}}
+{{- define "grafaml.uid" -}}
+  {{- if .Values.uidOverride }}
+    {{- .Values.uidOverride }}
+  {{- else }}
+    {{- $uid := sha1sum (include "grafaml.fullname" .) }}
+    {{- $uid }}
+  {{- end }}
+{{- end }}
