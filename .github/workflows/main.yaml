@@ -12,7 +12,7 @@ jobs:
       - name: "Checkout repository"
         uses: "actions/checkout@v4.2.2"
       - name: "Set up python and pip cache"
-        uses: "actions/setup-python@v5.1.0"
+        uses: "actions/setup-python@v5.4.0"
         with:
           python-version: "3.11.4"
           cache: "pip"
