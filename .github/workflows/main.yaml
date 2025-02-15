@@ -7,7 +7,7 @@ name: "Main"
 
 jobs:
   pre-commit-job:
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     steps:
       - name: "Checkout repository"
         uses: "actions/checkout@v4.2.2"
@@ -27,7 +27,7 @@ jobs:
         run: "pre-commit run --all-files --color=always --show-diff-on-failure"
 
   helm-lint-job:
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     container:
       image: "alpine/helm:3.17.0"
     steps:
@@ -37,7 +37,7 @@ jobs:
         run: "helm lint ./charts/grafaml"
 
   kube-linter-lint-job:
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     steps:
       - name: "Checkout repository"
         uses: "actions/checkout@v4.2.2"
@@ -47,7 +47,7 @@ jobs:
           directory: "./charts/grafaml"
 
   helm-test-job:
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     container:
       image: "alpine/helm:3.17.0"
     steps:
@@ -59,7 +59,7 @@ jobs:
         run: "helm unittest ./charts/grafaml"
 
   determine-version-job:
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     permissions:
       contents: "write"
       issues: "write"
@@ -94,7 +94,7 @@ jobs:
       - "helm-test-job"
       - "determine-version-job"
     if: "needs.determine-version-job.outputs.version != ''"
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     container:
       image: "alpine/helm:3.17.0"
     steps:
@@ -112,7 +112,7 @@ jobs:
   semantic-release-job:
     needs:
       - "helm-push-job"
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     permissions:
       contents: "write"
       issues: "write"
