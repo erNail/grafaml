@@ -1,0 +1,33 @@
+---
+version: "3"
+
+tasks:
+  install:
+    cmds:
+      - "brew install helm helmfile kube-score kube-linter yamllint pre-commit norwoodj/tap/helm-docs"
+      - "helm plugin install https://github.com/helm-unittest/helm-unittest.git"
+
+  render:
+    cmds:
+      - >
+        helmfile template -f ./chart/helmfile.yaml
+        --output-dir dist
+        --output-dir-template '{{"{{ .OutputDir }}"}}'
+
+  lint:
+    deps:
+      - "render"
+    cmds:
+      - "kube-score score chart/dist/grafaml/templates/*.yaml"
+      - "kube-linter lint chart/dist/grafaml/templates/*.yaml"
+      - "yamllint -c .yamllint-manifests.yaml chart/dist/grafaml/templates/*.yaml"
+      - "pre-commit run --all-files"
+
+  test:
+    cmds:
+      - "helm unittest -f 'templates/*-test.yaml' ./chart"
+
+  docs:
+    cmds:
+      - "helm-docs"
+...
