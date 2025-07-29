@@ -1,132 +1,62 @@
 ---
 # -- Wether to render only the dashboard JSON, or the entire ConfigMap.
-# Set this to true if you are not interested in deploying the Dashboard in a Kubernetes Cluster.
-# Use `helm template ./charts/grafaml --set onlyRenderDashboardJson=true | tail -n +3 > dashboard.json`
-# to get the dashboard JSON model as a file.
-#
 onlyRenderDashboardJson: false
 
+# -- The api versions of the resources created by this chart.
+#
+# Ref: https://kubernetes.io/docs/reference/using-api/deprecation-guide/
+apiVersions:
+  configMap: "v1"
+
+# -- Use this to override the name of the chart.
+nameOverride: ""
+
+# -- Use this to override the fullname of the chart.
+fullnameOverride: ""
+
+# -- Use this to override the namespace of the chart.
+# By default, `.Release.Namespace` is used.
+namespaceOverride: ""
+
 # -- Additional labels to add to the ConfigMap.
-# Ref: [Kubernetes Labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
-#
 extraLabels:
-  created-with: "grafaml"
+  grafana_dashboard: "1"
 
-# -- The displayed title of the Dashboard.
-# Ref: [Grafana JSON Fields](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#json-fields)
+# -- The unique identifier of the Dashboard.
+# If not set, the sha1sum of {{ .names.fullname }} will be used.
+# When setting a value, make sure it is unique across all dashboards in your Grafana instance.
+# The value must be between 8 and 40 characters.
 #
-title: "Grafana Dashboard"
+# Ref: https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#json-fields
+uid: ""
 
-# -- The unique identifier of the Dashboard. String value must be between 8 and 40 characters.
-# Ref: [Grafana JSON Fields](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#json-fields)
+# -- The base definition of the Dashboard.
+# This field can contain any valid Grafana JSON Dashboard model as YAML.
+# It must **not contain the `panels` field**. Check `.Values.panels` for more information.
+# It must **not contain the `uid` field**. Check `.Values.uid` for more information.
+# Be aware that Grafana does not provide a full overview of all available fields.
+# To find out about other options, it's possible to create the desired dashboard in the UI, then inspect the JSON.
 #
-uidOverride: ""
+# Ref: https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#json-fields
+dashboardBase:
+  title: "Grafana Dashboard"
+  # -- The tags of the dashboard.
+  tags:
+    - "grafaml"
 
-# -- The tags of the dashboard.
-# Ref: [Grafana JSON Fields](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#json-fields)
-#
-tags:
-  - "grafaml"
-
-# -- The style of the dashboard, either "dark" or "light".
-# Ref: [Grafana JSON Fields](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#json-fields)
-#
-style: "dark"
-
-# -- The timezone of the dashboard, either "utc" or "browser".
-# Ref: [Grafana JSON Fields](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#json-fields)
-#
-timezone: "browser"
-
-# -- Wether the dashboard is editable or not.
-# Ref: [Grafana JSON Fields](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#json-fields)
-#
-editable: true
-
-# -- The tooltip behavior of the dashboard.
-# 0 for no shared crosshair or tooltip (default), 1 for shared crosshair, 2 for shared crosshair and shared tooltip.
-# Ref: [Grafana JSON Fields](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#json-fields)
-#
-graphTooltip: "0"
-
-# -- The auto-refresh interval.
-# Ref: [Grafana JSON Fields](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#json-fields)
-#
-refresh: "30s"
-
-# -- The time range for the dashboard.
-# Ref: [Grafana JSON Fields](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#json-fields)
-#
-time:
-  from: "now-6h"
-  to: "now"
-
-# -- The configuration of the time picker.
-# Check [Grafana JSON Timepicker](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#timepicker)
-# for all possible options.
-# Ref: [Grafana JSON Timepicker](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#timepicker)
-#
-timepicker:
-  # -- Wether the timepicker configuration is rendered or not.
-  #
-  enabled: false
-  # -- Wether the timepicker is enabled or not.
-  #
-  enable: true
-  collapse: false
-  notice: false
-  now: true
-  status: "Stable"
-  type: "timepicker"
-
-# -- The dashboard template variables.
-# Ref: [Grafana JSON Templating](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#templating)
-#
-templating:
-  enabled: false
-  # -- Check
-  # [Grafana JSON Templating](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#templating)
-  # for all possible options.
-  #
-  list:
-    - allFormat: "wildcard"
-      current:
-        text: "prod"
-        value: "prod"
-      includeAll: true
-      name: "environment"
-      query: "tag_values(cpu.utilization.average,env)"
-      type: "query"
-      multi: true
-
-# -- The dashboard annotations.
-# Ref: [Grafana JSON Visualizations](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/annotate-visualizations/)
-#
-annotations:
-  enabled: false
-  # -- Grafana does not provide a full list with options.
-  # To find out about other options, create the desired annotations
-  # in the Grafana UI, inspect the JSON, and transform it to YAML.
-  list:
-    - name: "My Annotation"
-      expr: "up"
-
-# -- The dashboard panels.
-# The positioning will be handled automatically, so there is no need to define the "gridPos"
-# Ref: [Grafana JSON Panels](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#panels)
-#
+# -- The configuration of the automatically positioned panels.
 panels:
   # -- The number of columns of the grid in which the panels are placed.
-  # With 2 columns, each panel will have a width of 12
-  #
+  # With 2 columns, each panel will have a width of 12 grid units
   columns: 2
+  # -- The height of each panel in grid units.
   panelHeight: 8
-  # -- Check [Grafana JSON Panels](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/#panels)
-  # for more options.
-  # Grafana does not provide a full list with options.
-  # To find out about other options, create the desired panels
-  # in the Grafana UI, inspect the panel JSON, and transform it to YAML.
-  # For example dashboards created with grafaml, check out the [example charts](https://github.com/erNail/grafaml/tree/main/example-charts)
+  # -- The list of panels
+  # Each item can contain any valid Grafana JSON Panel model as YAML.
+  # Be aware that Grafana does not provide a full overview of all available fields.
+  # To find out about other options, it's possible to create the desired dashboard in the UI, then inspect the JSON.
+  # For example dashboards created with grafaml,
+  # check out the [example charts](https://github.com/erNail/grafaml/tree/main/example-charts)
   #
   list:
     - title: "Prometheus Targets Up"

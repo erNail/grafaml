@@ -1,0 +1,22 @@
+---
+suite: "Test Configmap"
+templates:
+  - "tests/validations.yaml"
+release:
+  name: "test-release"
+  namespace: "test-namespace"
+tests:
+  - it: "Should fail to render if uid has less than 8 characters"
+    set:
+      uid: "uid"
+    asserts:
+      - failedTemplate:
+          errorMessage: "uid must be between 8 and 40 characters"
+
+  - it: "Should fail to render if uid has more than 40 characters"
+    set:
+      uid: "this-is-a-very-long-uid-with-more-than-40-characters"
+    asserts:
+      - failedTemplate:
+          errorMessage: "uid must be between 8 and 40 characters"
+...

@@ -1,0 +1,267 @@
+---
+suite: "configmap template"
+templates:
+  - "configmap.yaml"
+release:
+  name: "test-release"
+  namespace: "test-namespace"
+tests:
+  - it: "should render as kind ConfigMap"
+    asserts:
+      - isKind:
+          of: "ConfigMap"
+
+  - it: "should render default apiVersion"
+    asserts:
+      - equal:
+          path: "apiVersion"
+          value: "v1"
+
+  - it: "should render set apiVersion"
+    set:
+      apiVersions:
+        configMap: "v2"
+    asserts:
+      - equal:
+          path: "apiVersion"
+          value: "v2"
+
+  - it: "should render labels and default extraLabels"
+    asserts:
+      - equal:
+          path: "metadata.labels"
+          value:
+            app.kubernetes.io/instance: "test-release"
+            app.kubernetes.io/managed-by: "Helm"
+            app.kubernetes.io/name: "grafaml"
+            app.kubernetes.io/version: "12.1.0"
+            grafana_dashboard: "1"
+            helm.sh/chart: "grafaml-0.0.0"
+
+  - it: "should render labels and set extraLabels"
+    set:
+      extraLabels:
+        customLabel: "customValue"
+    asserts:
+      - equal:
+          path: "metadata.labels"
+          value:
+            app.kubernetes.io/instance: "test-release"
+            app.kubernetes.io/managed-by: "Helm"
+            app.kubernetes.io/name: "grafaml"
+            app.kubernetes.io/version: "12.1.0"
+            grafana_dashboard: "1"
+            helm.sh/chart: "grafaml-0.0.0"
+            customLabel: "customValue"
+
+  - it: "should not render annotations by default"
+    asserts:
+      - notExists:
+          path: "metadata.annotations"
+
+  - it: "should render annotations as set"
+    set:
+      annotations:
+        customAnnotation: "customValue"
+    asserts:
+      - equal:
+          path: "metadata.annotations"
+          value:
+            customAnnotation: "customValue"
+
+  - it: "should render ConfigMap with default values"
+    asserts:
+      - matchRegex:
+          path: "data[\"test-release-grafaml.json\"]"
+          pattern: >-
+            "title": "Grafana Dashboard"
+
+  - it: "should render ConfigMap with dashboard values 'values-node-dashboard.yaml'"
+    values:
+      - "../../example-dashboards/values-node-dashboard.yaml"
+    asserts:
+      - matchRegex:
+          path: "data[\"test-release-grafaml.json\"]"
+          pattern: >-
+            "title": "Node Dashboard"
+
+  - it: "should render ConfigMap with dashboard values 'values-simple-dashboard.yaml'"
+    values:
+      - "../../example-dashboards/values-simple-dashboard.yaml"
+    asserts:
+      - matchRegex:
+          path: "data[\"test-release-grafaml.json\"]"
+          pattern: >-
+            "title": "Simple Dashboard"
+
+  - it: "should only render the dashboard json if enabled"
+    set:
+      onlyRenderDashboardJson: true
+    asserts:
+      - notExists:
+          path: "kind"
+      - notExists:
+          path: "apiVersion"
+      - notExists:
+          path: "data"
+
+  - it: "should place 6 panels in a grid with 3 columns, a panel height of 8, with static width"
+    set:
+      panels:
+        columns: 3
+        panelHeight: 8
+        list:
+          - title: "Panel 1"
+          - title: "Panel 2"
+          - title: "Panel 3"
+          - title: "Panel 4"
+          - title: "Panel 5"
+          - title: "Panel 6"
+    asserts:
+      - equal:
+          path: "data[\"test-release-grafaml.json\"]"
+          value: |
+            {
+              "panels": [
+                {
+                  "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "title": "Panel 1"
+                },
+                {
+                  "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 8,
+                    "y": 0
+                  },
+                  "title": "Panel 2"
+                },
+                {
+                  "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 16,
+                    "y": 0
+                  },
+                  "title": "Panel 3"
+                },
+                {
+                  "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 0,
+                    "y": 8
+                  },
+                  "title": "Panel 4"
+                },
+                {
+                  "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 8,
+                    "y": 8
+                  },
+                  "title": "Panel 5"
+                },
+                {
+                  "gridPos": {
+                    "h": 8,
+                    "w": 8,
+                    "x": 16,
+                    "y": 8
+                  },
+                  "title": "Panel 6"
+                }
+              ],
+              "tags": [
+                "grafaml"
+              ],
+              "title": "Grafana Dashboard",
+              "uid": "c3f470f6fff025ed5b68501b10a935d56c5fddd9"
+            }
+
+  - it: "should place 6 panels in a grid with 2 columns, a panel height of 8, with static width"
+    set:
+      panels:
+        columns: 2
+        panelHeight: 8
+        list:
+          - title: "Panel 1"
+          - title: "Panel 2"
+          - title: "Panel 3"
+          - title: "Panel 4"
+          - title: "Panel 5"
+          - title: "Panel 6"
+    asserts:
+      - equal:
+          path: "data[\"test-release-grafaml.json\"]"
+          value: |
+            {
+              "panels": [
+                {
+                  "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "title": "Panel 1"
+                },
+                {
+                  "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 12,
+                    "y": 0
+                  },
+                  "title": "Panel 2"
+                },
+                {
+                  "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 0,
+                    "y": 8
+                  },
+                  "title": "Panel 3"
+                },
+                {
+                  "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 12,
+                    "y": 8
+                  },
+                  "title": "Panel 4"
+                },
+                {
+                  "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 0,
+                    "y": 16
+                  },
+                  "title": "Panel 5"
+                },
+                {
+                  "gridPos": {
+                    "h": 8,
+                    "w": 12,
+                    "x": 12,
+                    "y": 16
+                  },
+                  "title": "Panel 6"
+                }
+              ],
+              "tags": [
+                "grafaml"
+              ],
+              "title": "Grafana Dashboard",
+              "uid": "c3f470f6fff025ed5b68501b10a935d56c5fddd9"
+            }
+...

@@ -1,60 +1,23 @@
-{{- if not .Values.onlyRenderDashboardJson }}
-apiVersion: "v1"
-kind: "ConfigMap"
-metadata:
-  name: "{{ include "grafaml.fullname" . }}"
-  labels:
-    {{- include "grafaml.labels" . | nindent 4 }}
-    grafana_dashboard: "1"
-    {{- .Values.extraLabels | toYaml | nindent 4 }}
-data:
-  {{ include "grafaml.fullname" . }}.json: |
-    {{- include "dashboardYaml" . | fromYaml | toPrettyJson | nindent 4 }}
+{{- if .Values.onlyRenderDashboardJson }}
+    {{- include "dashboard.json" . }}
 {{- else }}
-  {{- include "dashboardYaml" . | fromYaml | toPrettyJson }}
-{{- end }}
-
-{{- define "dashboardYaml" -}}
-title: "{{ .Values.title }}"
-uid: "{{ include "grafaml.uid" . }}"
-style: "{{ .Values.style }}"
-timezone: "{{ .Values.timezone }}"
-editable: "{{ .Values.editable }}"
-graphTooltip: {{ .Values.graphTooltip }}
-refresh: "{{ .Values.refresh }}"
-
-tags:
-  {{ .Values.tags | toYaml | nindent 2 }}
-
-time:
-  {{ .Values.time | toYaml | nindent 2 }}
-
-{{- if .Values.timepicker.enabled }}
-timepicker:
-  {{ omit .Values.timepicker "enabled" | toYaml | nindent 2 }}
-{{ end }}
-
-{{- if .Values.templating.enabled }}
-templating:
-  list:
-    {{ .Values.templating.list | toYaml | nindent 2 }}
-{{- end }}
-
-{{- if .Values.annotations.enabled }}
-annotations:
-  list:
-    {{ .Values.annotations.list | toYaml | nindent 2 }}
-{{- end }}
-
-panels:
-  {{- $totalWidth := 24 }}
-  {{- $panelWidth := div $totalWidth .Values.panels.columns }}
-  {{- range $i, $panel := .Values.panels.list }}
-  - gridPos:
-      w: {{ $panelWidth }}
-      h: {{ $.Values.panels.panelHeight }}
-      x: {{ mul (mod $i $.Values.panels.columns) $panelWidth }}
-      "y": {{ mul (floor (div $i $.Values.panels.columns)) $.Values.panels.panelHeight }}
-    {{- $panel | toYaml | nindent 4 }}
+---
+kind: "ConfigMap"
+apiVersion: {{ .Values.apiVersions.configMap | quote }}
+metadata:
+  name: {{ include "names.fullname" . | quote }}
+  namespace: {{ include "names.namespace" . | quote }}
+  labels:
+    {{- include "labels.commonLabels" . | nindent 4 }}
+    {{- with .Values.extraLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
   {{- end }}
-{{- end }}
+data:
+  {{ include "names.fullname" . }}.json: |
+    {{- include "dashboard.json" . | nindent 4 }}
+...
+{{- end}}
