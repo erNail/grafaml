@@ -2,133 +2,197 @@
 name: "CI/CD"
 
 "on":
-  push:
-  pull_request:
+  push: {}
 
 jobs:
+  test-chart-job:
+    runs-on: "ubuntu-24.04"
+    container:
+      image: "alpine/helm:3.18.3@sha256:e1d0398b27ef1bfab2709f2df998824a6592705655eabaca96125c287942f6ad"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v4.2.2"
+      - name: "Install helm-unittest"
+        run: "helm plugin install https://github.com/helm-unittest/helm-unittest.git"
+      - name: "Run helm unittest"
+        run: "helm unittest -f 'templates/*-test.yaml' ./chart"
+
+  build-manifests-job:
+    runs-on: "ubuntu-24.04"
+    container:
+      image: "ghcr.io/helmfile/helmfile:v1.1.3@sha256:ae9bd6e317b9ded727ad1df07d8cf69d1b6ca32bc53f2038d20c6f8ff58c726e"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v4.2.2"
+      - name: "Build manifests"
+        run: >
+          helmfile template -f ./chart/helmfile.yaml
+          --output-dir dist
+          --output-dir-template '{{ .OutputDir }}'
+      - name: "Upload manifests as artifact"
+        uses: "actions/upload-artifact@v4.6.2"
+        with:
+          name: "manifests"
+          path: "chart/dist/grafaml/templates/"
+
+  lint-kube-score-job:
+    runs-on: "ubuntu-24.04"
+    container:
+      image: "zegl/kube-score:v1.20.0"
+    needs:
+      - "build-manifests-job"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v4.2.2"
+      - name: "Download manifests"
+        uses: "actions/download-artifact@v4.3.0"
+        with:
+          name: "manifests"
+          path: "chart/dist/grafaml/templates/"
+      - name: "Lint manifests with kube-score"
+        run: "kube-score score chart/dist/grafaml/templates/*.yaml"
+
+  lint-kube-linter-job:
+    runs-on: "ubuntu-24.04"
+    needs:
+      - "build-manifests-job"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v4.2.2"
+      - name: "Download manifests"
+        uses: "actions/download-artifact@v4.3.0"
+        with:
+          name: "manifests"
+          path: "chart/dist/grafaml/templates/"
+      - name: "Lint manifests with kube-linter"
+        uses: "stackrox/kube-linter-action@v1.0.7"
+        with:
+          directory: "chart/dist/grafaml/templates/"
+
+  lint-yamllint-manifests-job:
+    runs-on: "ubuntu-24.04"
+    container:
+      image: "pipelinecomponents/yamllint:0.35.0"
+    needs:
+      - "build-manifests-job"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v4.2.2"
+      - name: "Download manifests"
+        uses: "actions/download-artifact@v4.3.0"
+        with:
+          name: "manifests"
+          path: "chart/dist/grafaml/templates/"
+      - name: "Lint manifests with yamllint"
+        run: "yamllint -c .yamllint-manifests.yaml chart/dist/grafaml/templates/*.yaml"
+
   pre-commit-job:
     runs-on: "ubuntu-24.04"
     steps:
-      - name: "Checkout repository"
+      - name: "Check out repository"
         uses: "actions/checkout@v4.2.2"
-      - name: "Set up python and pip cache"
+      - name: "Setup python"
         uses: "actions/setup-python@v5.6.0"
-        with:
-          python-version: "3.11.4"
-          cache: "pip"
-      - name: "Install python dependencies"
-        run: "pip install -r requirements.txt"
-      - name: "Set up pre-commit cache"
-        uses: "actions/cache@v4.2.3"
-        with:
-          path: "~/.cache/pre-commit"
-          key: "pre-commit|${{ env.pythonLocation }}|${{ hashFiles('.pre-commit-config.yaml') }}"
       - name: "Run pre-commit"
-        run: "pre-commit run --all-files --color=always --show-diff-on-failure"
-
-  helm-lint-job:
-    runs-on: "ubuntu-24.04"
-    container:
-      image: "alpine/helm:3.18.4"
-    steps:
-      - name: "Checkout repository"
-        uses: "actions/checkout@v4.2.2"
-      - name: "Run 'helm lint'"
-        run: "helm lint ./charts/grafaml"
-
-  kube-linter-lint-job:
-    runs-on: "ubuntu-24.04"
-    steps:
-      - name: "Checkout repository"
-        uses: "actions/checkout@v4.2.2"
-      - name: "Run 'kube-linter'"
-        uses: "stackrox/kube-linter-action@v1.0.7"
-        with:
-          directory: "./charts/grafaml"
-
-  helm-test-job:
-    runs-on: "ubuntu-24.04"
-    container:
-      image: "alpine/helm:3.18.4"
-    steps:
-      - name: "Checkout repository"
-        uses: "actions/checkout@v4.2.2"
-      - name: "Install 'Helm Unittest'"
-        run: "helm plugin install https://github.com/helm-unittest/helm-unittest.git"
-      - name: "Run 'helm unittest'"
-        run: "helm unittest ./charts/grafaml"
+        uses: "pre-commit/action@v3.0.1"
 
   determine-version-job:
     runs-on: "ubuntu-24.04"
-    permissions:
-      contents: "write"
-      issues: "write"
-      pull-requests: "write"
     outputs:
-      version: "${{ steps.determineVersion.outputs.version }}"
+      version: "${{ steps.get_version.outputs.version }}"
     steps:
-      - name: "Checkout repository"
+      - name: "Check out repository"
         uses: "actions/checkout@v4.2.2"
-      - name: "Set up node and yarn"
-        uses: "actions/setup-node@v4.4.0"
         with:
-          node-version: "20.11.0"
-      - name: "Install semantic-release"
-        run: "yarn add semantic-release"
-      - name: "Determine version"
-        id: "determineVersion"
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        run: >-
-          echo version="$(npx semantic-release --dry-run |
-          grep -Po '(?<=t|The next release version is )\d+\.\d+\.\d+(?:-[a-zA-Z0-9.]+)?')"
-          >> "$GITHUB_OUTPUT"
-      - name: "Echo new version"
-        run: "echo \"The new version is ${{ steps.determineVersion.outputs.version }}\""
+          fetch-depth: 0
+      - name: "Setup verscout"
+        run: |
+          curl -L -o verscout.tar.gz \
+            https://github.com/erNail/verscout/releases/download/1.6.0/verscout_1.6.0_linux_amd64.tar.gz
+          tar -xzf verscout.tar.gz
+          chmod +x verscout
+      - name: "Run verscout next"
+        id: "get_version"
+        run: |
+          VERSION=$(./verscout next)
+          if [ -z "$VERSION" ]; then
+            exit 0
+          fi
+          if [ "${{ github.ref_name }}" != "${{ github.event.repository.default_branch }}" ]; then
+            VERSION="${VERSION}-rc${{github.run_id}}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-  helm-push-job:
-    needs:
-      - "pre-commit-job"
-      - "helm-lint-job"
-      - "kube-linter-lint-job"
-      - "helm-test-job"
-      - "determine-version-job"
-    if: "needs.determine-version-job.outputs.version != ''"
+  package-chart-job:
     runs-on: "ubuntu-24.04"
     container:
-      image: "alpine/helm:3.18.4"
-    steps:
-      - name: "Checkout repository"
-        uses: "actions/checkout@v4.2.2"
-      - name: "Echo new version"
-        run: "echo \"The package will be released with version ${{ needs.determine-version-job.outputs.version }}\""
-      - name: "Run 'helm package'"
-        run: "helm package ./charts/grafaml --version ${{ needs.determine-version-job.outputs.version }}"
-      - name: "Run 'helm registry login'"
-        run: "helm registry login registry-1.docker.io --username ernail --password ${{ secrets.DOCKER_REGISTRY_TOKEN }}"
-      - name: "Run 'helm push'"
-        run: "helm push grafaml-${{ needs.determine-version-job.outputs.version }}.tgz oci://registry-1.docker.io/ernail"
-
-  semantic-release-job:
+      image: "alpine/helm:3.18.3@sha256:e1d0398b27ef1bfab2709f2df998824a6592705655eabaca96125c287942f6ad"
     needs:
-      - "helm-push-job"
+      - "determine-version-job"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v4.2.2"
+      - name: "Package Helm chart"
+        run: >-
+          helm package chart
+          --version "${{ needs.determine-version-job.outputs.version }}"
+      - name: "Upload packaged chart"
+        uses: "actions/upload-artifact@v4.6.2"
+        with:
+          name: "grafaml-chart"
+          path: "grafaml-${{ needs.determine-version-job.outputs.version }}.tgz"
+
+  publish-chart-job:
     runs-on: "ubuntu-24.04"
+    container:
+      image: "alpine/helm:3.18.3@sha256:e1d0398b27ef1bfab2709f2df998824a6592705655eabaca96125c287942f6ad"
+    permissions:
+      packages: "write"
+    needs:
+      - "package-chart-job"
+      - "determine-version-job"
+    if: "needs.determine-version-job.outputs.VERSION != ''"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v4.2.2"
+      - name: "Download packaged chart"
+        uses: "actions/download-artifact@v4.3.0"
+        with:
+          name: "grafaml-chart"
+      - name: "Login to helm registry"
+        run: "helm registry login ghcr.io --username ernail --password ${{ secrets.GITHUB_TOKEN }}"
+      - name: "Publish Helm Chart"
+        run: "helm push grafaml-${{ needs.determine-version-job.outputs.version }}.tgz oci://ghcr.io/ernail/charts"
+
+  release-job:
+    runs-on: "ubuntu-24.04"
+    needs:
+      - "determine-version-job"
+      - "package-chart-job"
+      - "publish-chart-job"
+    if: "needs.determine-version-job.outputs.VERSION != ''"
     permissions:
       contents: "write"
-      issues: "write"
-      pull-requests: "write"
     steps:
-      - name: "Checkout repository"
+      - name: "Check out repository"
         uses: "actions/checkout@v4.2.2"
         with:
-          persist-credentials: false
-      - name: "Set up node and yarn"
-        uses: "actions/setup-node@v4.4.0"
+          fetch-depth: 0
+      - name: "Download packaged chart"
+        uses: "actions/download-artifact@v4.3.0"
         with:
-          node-version: "20.11.0"
-      - name: "Install semantic-release"
-        run: "yarn add semantic-release"
-      - name: "Run semantic-release"
+          name: "grafaml-chart"
+      - name: "Generate release notes"
+        uses: "orhun/git-cliff-action@v4.4.2"
+        with:
+          args: "--tag ${{ needs.determine-version-job.outputs.VERSION }} --unreleased --strip header"
         env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        run: "npx semantic-release"
+          OUTPUT: "release-notes.md"
+      - name: "Create GitHub Release"
+        uses: "softprops/action-gh-release@v2.3.2"
+        with:
+          tag_name: "${{ needs.determine-version-job.outputs.VERSION }}"
+          body_path: "release-notes.md"
+          files: "grafaml-${{ needs.determine-version-job.outputs.version }}.tgz"
+          draft: true
+...
