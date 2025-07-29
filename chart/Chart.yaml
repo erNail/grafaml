@@ -1,13 +1,28 @@
 ---
 apiVersion: "v2"
 name: "grafaml"
-description: "A Helm chart for generating Grafana Dashboards from YAML"
+description: "Generate Grafana dashboards from YAML with automatic panel positioning using Helm Chart templating."
 type: "application"
-version: "0.0.0"
-appVersion: "10.0.2"
+icon: "https://avatars.githubusercontent.com/u/7195757"
+keywords:
+  - "grafana"
+  - "kubernetes"
+  - "helm"
+  - "dashboard"
+  - "monitoring"
+  - "observability"
+maintainers:
+  - name: "ernail"
+    email: "nagel.eric.95@googlemail.com"
 annotations:
-  artifacthub.io/category: "monitoring-logging"
+  artifacthub.io/license: "MIT"
   artifacthub.io/links: |
     - name: source
       url: https://github.com/erNail/grafaml
+    - name: support
+      url: https://github.com/erNail/grafaml/issues
+version: "0.0.0"
+
+# renovate: image=grafana/grafana
+appVersion: "12.1.0"
 ...
