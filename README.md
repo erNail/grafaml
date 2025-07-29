@@ -1,11 +1,16 @@
 # grafaml
 
-Create Grafana Dashboards from YAML using Helm Chart templating.
+> WARNING: This chart has moved registries. Starting from v3.0.0,
+> it will be available only at oci://ghcr.io/ernail/charts/grafaml
+
+Generate Grafana dashboards from YAML with automatic panel positioning using Helm Chart templating.
 
 This YAML:
 
 ```yaml
-title: "Simple Dashboard"
+dashboardBase:
+  title: "Simple Dashboard"
+
 panels:
   columns: 2
   panelHeight: 8
@@ -39,27 +44,19 @@ Becomes this dashboard:
 
 ![Simple Dashboard](./example-dashboards/values-simple-dashboard.png)
 
-## Problems Grafaml Addresses
-
-1. **Grafana UI**: Creating and editing Dashboards in the Grafana UI can be a painstaking and slow process.
-
-2. **Grafana JSON Model**: Creating and editing Dashboards via the Grafana JSON model is complicated,
-due to the complexity of the JSON model and the absolute positioning of panels.
-
-3. **Version Control**: Tracking dashboard changes in Git with the Grafan JSON model is inefficient.
-Even little changes to the dashboard can cause hundreds of lines to change.
-
 ## Features
 
-**Create Dashboards from YAML**: Instead of using the Grafana UI or writing complex JSON models,
+**Dashboards from YAML**: Instead of using the Grafana UI or writing complex JSON models,
 you can write simplified YAML files from which the dashboard JSON is generated.
-With this, version control becomes efficient again.
+This allows better version control and code reviews.
 
-**Grid-Based Panel Positioning**: Instead of worrying about the absolute positioning of every single panel,
-Grafaml arranges panels based on their definition order in a grid with a flexible number of columns.
+**Automatic panel positioning**: Grafana doesn't support relative positioning.
+When trying to write your dashboard as JSON, you need to set and keep track of the position of every panel yourself.
+`grafaml` arranges panels based on their definition order in a grid with a flexible number of columns.
 
-**Kubernetes Deployment**: Grafaml is a Helm Chart.
-Grafana Dashboards can be deployed as ConfigMaps, which can optionally be discovered by the [Grafana Sidecar Container][1].
+**Kubernetes-ready**: `grafaml` is a Helm Chart.
+Grafana dashboards can be deployed as ConfigMaps,
+which can optionally be discovered by the [Grafana Sidecar Container][1].
 
 ## Limitations
 
@@ -71,7 +68,7 @@ Due to this, it is not possible to have panels with variable width or positionin
 ### Creating the dashboard YAML
 
 First we need to create a Helm Values file containing the definition of our dashboard.
-We'll call the file `values-my-dashboard.json`.
+We'll call the file `values-my-dashboard.yaml`.
 It will define a very simple dashboard with only 2 panels:
 
 ```yaml
@@ -90,19 +87,18 @@ panels:
         - expr: "sum by (instance, job) (avg by (mode, instance) (rate(node_cpu_seconds_total{mode!='idle'}[2m])))"
 ```
 
-You can find all possible configuration options in the [default `values.yaml`](./charts/grafaml/values.yaml)
-and in the [`README.md` of the Helm Chart`](./charts/grafaml/README.md).
+You can find all possible configuration options in the [default `values.yaml`](./chart/values.yaml)
+and in the [`README.md` of the Helm Chart`](./chart/README.md).
+Be aware that the`values-my-dashboard.yaml` will be merged with the [default `values.yaml`](./chart/values.yaml).
 
-You can find example Dashboards in the [`example-dashboards`](./example-dashboards/) directory.
-
-In the next step, the `values-my-dashboard.json` will be merged with the default [default `values.yaml`](./charts/grafaml/values.yaml),
-from which the dashboard JSON will be generated.
+You can find example dashboards in the [`example-dashboards`](./example-dashboards/) directory.
 
 ### Generating the dashboard JSON
 
-This step is optional if you want to [deploy the dashboard in a Kubernetes Cluster](#deploying-the-dashboard-in-kubernetes).
+This step is optional if you want to
+[deploy the dashboard in a Kubernetes Cluster](#deploying-the-dashboard-in-kubernetes).
 
-Execute this code in your Shell to create a `dashboard.json`:
+Execute the following to create a `dashboard.json`:
 
 ```shell
 # Adapt the variables to your needs
@@ -113,7 +109,7 @@ helm template $name oci://registry-1.docker.io/ernail/grafaml --values $values -
 
 ### Deploying the dashboard in Kubernetes
 
-Execute this code in your shell to deploy the dashboard as ConfigMap in Kubernetes:
+Execute the following in your shell to deploy the dashboard as a ConfigMap in Kubernetes:
 
 ```shell
 name="my-dashboard"
@@ -122,14 +118,31 @@ namespace="my-namespace"
 helm upgrade $name oci://registry-1.docker.io/ernail/grafaml --install --create-namespace --namespace $namespace --values $values
 ```
 
-If you are using the [Grafana Sidecar Container][1], the dashboard should now be available in your Grafana.
+If you are using the [Grafana Sidecar Container][1], the dashboard should now be available in your Grafana instance.
 
-[1]: https://github.com/grafana/helm-charts/blob/main/charts/grafana/README.md#sidecar-for-dashboards
+## Advanced Usage
 
-## Usage
+### Grafana JSON Model Compatibility
 
-The basic usage of Grafaml is already explained in the [Getting Started](#getting-started) section.
-Any additional usage information is documented here.
+`grafaml` generates standard Grafana JSON dashboards, which means you can use almost any feature that Grafana supports.
+The `dashboardBase` field of the values file accepts any field compatible with the
+[Grafana JSON Dashboard model](https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/view-dashboard-json-model/),
+with only two exceptions:
+
+- **`uid`**: This is generated automatically, or can be set via the field `uid` in the values file.
+- **`panels`**: These are configured and automatically positioned via the field `panels` in the values.
+
+This means you can configure advanced features like:
+
+- Custom time ranges and refresh intervals
+- Dashboard variables and templating
+- Annotations and alerts
+- Custom styling and themes
+- Dashboard tags and metadata
+
+**Important limitation**: Due to the automatic grid-based positioning of panels,
+certain panel types like `row` panels will interfere with the positioning logic.
+All items in `panels.list` are treated as regular panels and positioned in the grid sequence.
 
 ### Using Helmfile
 
@@ -154,7 +167,7 @@ releases:
       - onlyRenderDashboardJson: false
 ```
 
-Execute this code in your Shell to create a `dashboard.json`:
+Execute the following to create a `dashboard.json`:
 
 ```shell
 helmfile template --file ./helmfile.yaml --set onlyRenderDashboardJson=true | tail -n +3 > dashboard.json
@@ -168,51 +181,40 @@ helmfile apply --file ./helmfile.yaml
 
 ## Development
 
-### Testing
+### Install Dependencies
+
+You can install all required dependencies via `Task` and `Homebrew`
 
 ```shell
-helm unittest ./charts/grafaml
+brew install go-task
+task install
 ```
 
-### Linting
+If you'd like to use other tools,
+you can find all dependencies and relevant commands in the [`taskfile.yaml`](./taskfile.yaml).
+
+### Rendering the Helm Chart
 
 ```shell
-pip install -r requirements.txt
-pre-commit run --all-files
-helm lint ./charts/grafaml
-kube-linter lint ./charts/grafaml
+task render
 ```
 
-### Templating
-
-Using Helm:
+### Testing the Helm Chart
 
 ```shell
-helm template grafaml ./charts/grafaml
+task test
 ```
 
-Using Helmfile:
+### Running linters
 
 ```shell
-helmfile template --file ./charts/grafaml/helmfile.yaml
-```
-
-### Deploying
-
-Using Helm:
-
-```shell
-helm upgrade grafaml ./charts/grafaml --install --create-namespace --namespace grafaml
-```
-
-Using Helmfile:
-
-```shell
-helmfile apply --file ./charts/grafaml/helmfile.yaml
+task lint
 ```
 
 ### Generating documentation
 
 ```shell
-helm-docs ./charts/grafaml/
+task docs
 ```
+
+[1]: https://github.com/grafana/helm-charts/blob/main/charts/grafana/README.md#sidecar-for-dashboards
