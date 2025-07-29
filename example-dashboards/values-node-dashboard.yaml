@@ -1,9 +1,11 @@
 ---
-title: "Node Dashboard"
-tags:
-  - "grafaml"
-  - "node-exporter"
-graphTooltip: "2"
+dashboardBase:
+  title: "Node Dashboard"
+  tags:
+    - "grafaml"
+    - "node-exporter"
+  graphTooltip: "2"
+
 panels:
   columns: 2
   panelHeight: 8
