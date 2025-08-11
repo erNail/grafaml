@@ -45,7 +45,7 @@ jobs:
       - name: "Check out repository"
         uses: "actions/checkout@v4.2.2"
       - name: "Download manifests"
-        uses: "actions/download-artifact@v4.3.0"
+        uses: "actions/download-artifact@v5.0.0"
         with:
           name: "manifests"
           path: "chart/dist/grafaml/templates/"
@@ -60,7 +60,7 @@ jobs:
       - name: "Check out repository"
         uses: "actions/checkout@v4.2.2"
       - name: "Download manifests"
-        uses: "actions/download-artifact@v4.3.0"
+        uses: "actions/download-artifact@v5.0.0"
         with:
           name: "manifests"
           path: "chart/dist/grafaml/templates/"
@@ -79,7 +79,7 @@ jobs:
       - name: "Check out repository"
         uses: "actions/checkout@v4.2.2"
       - name: "Download manifests"
-        uses: "actions/download-artifact@v4.3.0"
+        uses: "actions/download-artifact@v5.0.0"
         with:
           name: "manifests"
           path: "chart/dist/grafaml/templates/"
@@ -156,7 +156,7 @@ jobs:
       - name: "Check out repository"
         uses: "actions/checkout@v4.2.2"
       - name: "Download packaged chart"
-        uses: "actions/download-artifact@v4.3.0"
+        uses: "actions/download-artifact@v5.0.0"
         with:
           name: "grafaml-chart"
       - name: "Login to helm registry"
@@ -179,7 +179,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: "Download packaged chart"
-        uses: "actions/download-artifact@v4.3.0"
+        uses: "actions/download-artifact@v5.0.0"
         with:
           name: "grafaml-chart"
       - name: "Generate release notes"
