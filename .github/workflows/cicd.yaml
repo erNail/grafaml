@@ -11,7 +11,7 @@ jobs:
       image: "alpine/helm:3.18.4@sha256:0864a0b7ccc4230d082ba44d038ad0a16619a9928647db273e3df78efa844851"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
+        uses: "actions/checkout@v5.0.0"
       - name: "Install helm-unittest"
         run: "helm plugin install https://github.com/helm-unittest/helm-unittest.git"
       - name: "Run helm unittest"
@@ -23,7 +23,7 @@ jobs:
       image: "ghcr.io/helmfile/helmfile:v1.1.4@sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
+        uses: "actions/checkout@v5.0.0"
       - name: "Build manifests"
         run: >
           helmfile template -f ./chart/helmfile.yaml
@@ -43,7 +43,7 @@ jobs:
       - "build-manifests-job"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
+        uses: "actions/checkout@v5.0.0"
       - name: "Download manifests"
         uses: "actions/download-artifact@v4.3.0"
         with:
@@ -58,7 +58,7 @@ jobs:
       - "build-manifests-job"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
+        uses: "actions/checkout@v5.0.0"
       - name: "Download manifests"
         uses: "actions/download-artifact@v4.3.0"
         with:
@@ -77,7 +77,7 @@ jobs:
       - "build-manifests-job"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
+        uses: "actions/checkout@v5.0.0"
       - name: "Download manifests"
         uses: "actions/download-artifact@v4.3.0"
         with:
@@ -90,7 +90,7 @@ jobs:
     runs-on: "ubuntu-24.04"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
+        uses: "actions/checkout@v5.0.0"
       - name: "Setup python"
         uses: "actions/setup-python@v5.6.0"
       - name: "Run pre-commit"
@@ -102,7 +102,7 @@ jobs:
       version: "${{ steps.get_version.outputs.version }}"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
+        uses: "actions/checkout@v5.0.0"
         with:
           fetch-depth: 0
       - name: "Setup verscout"
@@ -131,7 +131,7 @@ jobs:
       - "determine-version-job"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
+        uses: "actions/checkout@v5.0.0"
       - name: "Package Helm chart"
         run: >-
           helm package chart
@@ -154,7 +154,7 @@ jobs:
     if: "needs.determine-version-job.outputs.VERSION != ''"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
+        uses: "actions/checkout@v5.0.0"
       - name: "Download packaged chart"
         uses: "actions/download-artifact@v4.3.0"
         with:
@@ -175,7 +175,7 @@ jobs:
       contents: "write"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
+        uses: "actions/checkout@v5.0.0"
         with:
           fetch-depth: 0
       - name: "Download packaged chart"
