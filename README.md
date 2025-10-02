@@ -72,23 +72,31 @@ We'll call the file `values-my-dashboard.yaml`.
 It will define a very simple dashboard with only 2 panels:
 
 ```yaml
-title: "Simple Dashboard"
+dashboardBase:
+  title: "Simple Dashboard"
+
 panels:
-  colums: 2
+  columns: 2
   panelHeight: 8
   list:
-    - title: "Memory Usage in Percent over Time"
-      type: "timeseries"
+    - title: "Prometheus Targets Up"
+      type: "stat"
+      targets:
+        - expr: "up"
+
+    - title: "Resource Usage in Percent"
+      description: "Memory and CPU Usage"
+      type: "stat"
       targets:
         - expr: "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100"
-    - title: "CPU Usage in Percent over Time"
-      type: "timeseries"
-      targets:
-        - expr: "sum by (instance, job) (avg by (mode, instance) (rate(node_cpu_seconds_total{mode!='idle'}[2m])))"
+          legendFormat: "Memory Usage"
+        - expr: "sum by (instance, job)(avg by (mode, instance) (rate(node_cpu_seconds_total{mode!='idle'}[2m]))) * 100"
+          legendFormat: "CPU Usage"
 ```
 
 You can find all possible configuration options in the [default `values.yaml`](./chart/values.yaml)
 and in the [`README.md` of the Helm Chart`](./chart/README.md).
+
 Be aware that the`values-my-dashboard.yaml` will be merged with the [default `values.yaml`](./chart/values.yaml).
 
 You can find example dashboards in the [`example-dashboards`](./example-dashboards/) directory.
@@ -101,10 +109,7 @@ This step is optional if you want to
 Execute the following to create a `dashboard.json`:
 
 ```shell
-# Adapt the variables to your needs
-name="my-dashboard"
-values="./values-my-dashboard.yaml"
-helm template $name oci://registry-1.docker.io/ernail/grafaml --values $values --set onlyRenderDashboardJson=true | tail -n +3 > dashboard.json
+helm template my-dashboard oci://ghcr.io/ernail/charts/grafaml --values ./values-my-dashboard.yaml --set onlyRenderDashboardJson=true | tail -n +3 > dashboard.json
 ```
 
 ### Deploying the dashboard in Kubernetes
@@ -112,10 +117,7 @@ helm template $name oci://registry-1.docker.io/ernail/grafaml --values $values -
 Execute the following in your shell to deploy the dashboard as a ConfigMap in Kubernetes:
 
 ```shell
-name="my-dashboard"
-values="./values-my-dashboard.yaml"
-namespace="my-namespace"
-helm upgrade $name oci://registry-1.docker.io/ernail/grafaml --install --create-namespace --namespace $namespace --values $values
+helm upgrade my-dashboard oci://registry-1.docker.io/ernail/grafaml --install --create-namespace --namespace my-namespace --values ./values-my-dashboard.yaml
 ```
 
 If you are using the [Grafana Sidecar Container][1], the dashboard should now be available in your Grafana instance.
