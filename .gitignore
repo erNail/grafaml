@@ -1,1 +1,7 @@
+# Build artifacts
 dist/
+*.tgz
+
+# Secrets
+secret-*
+!sealed-secret*

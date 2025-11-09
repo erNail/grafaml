@@ -1,7 +1,7 @@
 # grafaml
 
 > WARNING: This chart has moved registries. Starting from v3.0.0,
-> it will be available only at oci://ghcr.io/ernail/charts/grafaml
+> it will be available only at `oci://ghcr.io/ernail/charts/grafaml`
 
 Generate Grafana dashboards from YAML with automatic panel positioning using Helm Chart templating.
 
@@ -94,9 +94,7 @@ panels:
           legendFormat: "CPU Usage"
 ```
 
-You can find all possible configuration options in the [default `values.yaml`](./chart/values.yaml)
-and in the [`README.md` of the Helm Chart`](./chart/README.md).
-
+You can find all possible configuration options in the [default `values.yaml`](./chart/values.yaml).
 Be aware that the`values-my-dashboard.yaml` will be merged with the [default `values.yaml`](./chart/values.yaml).
 
 You can find example dashboards in the [`example-dashboards`](./example-dashboards/) directory.
