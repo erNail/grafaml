@@ -34,7 +34,7 @@ tests:
             app.kubernetes.io/instance: "test-release"
             app.kubernetes.io/managed-by: "Helm"
             app.kubernetes.io/name: "grafaml"
-            app.kubernetes.io/version: "12.1.0"
+            app.kubernetes.io/version: "0.0.0"
             grafana_dashboard: "1"
             helm.sh/chart: "grafaml-0.0.0"
 
@@ -49,7 +49,7 @@ tests:
             app.kubernetes.io/instance: "test-release"
             app.kubernetes.io/managed-by: "Helm"
             app.kubernetes.io/name: "grafaml"
-            app.kubernetes.io/version: "12.1.0"
+            app.kubernetes.io/version: "0.0.0"
             grafana_dashboard: "1"
             helm.sh/chart: "grafaml-0.0.0"
             customLabel: "customValue"
