@@ -35,13 +35,14 @@ tasks:
       - "kube-score score chart/dist/grafaml/templates/*.yaml"
       - "kube-linter lint chart/dist/grafaml/templates/*.yaml"
       - "trufflehog git file://."
-      - "pre-commit run --all-files"
 
   test:
     cmds:
       - "helm unittest -f 'templates/*-test.yaml' ./chart"
 
-  docs:
+  build:
     cmds:
-      - "helm-docs"
-...
+      - "cp ./README.md ./chart/README.md"
+      - >
+        helm package chart
+        --version "0.0.0"
