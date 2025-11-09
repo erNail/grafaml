@@ -29,4 +29,3 @@ panels:
       type: "timeseries"
       targets:
         - expr: "sum by (instance, job) (avg by (mode, instance) (rate(node_cpu_seconds_total{mode!='idle'}[2m])))"
-...

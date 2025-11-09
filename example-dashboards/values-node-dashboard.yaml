@@ -83,4 +83,3 @@ panels:
         defaults:
           min: 0
           max: 100
-...
