@@ -1,4 +1,6 @@
-# Default from https://github.com/orhun/git-cliff/blob/main/config/cliff.toml
+# git-cliff ~ configuration file
+# https://git-cliff.org/docs/configuration
+
 
 [changelog]
 # A Tera template to be rendered for each release in the changelog.
@@ -13,12 +15,20 @@ body = """
     ### {{ group | striptags | trim | upper_first }}
     {% for commit in commits %}
         - {% if commit.scope %}*({{ commit.scope }})* {% endif %}\
+            {% if commit.breaking %}[**breaking**] {% endif %}\
             {{ commit.message | upper_first }}\
-            {% if commit.breaking %}
-              {% raw %}  {% endraw %}- **BREAKING**: {{commit.breaking_description}}\
-            {% endif %}\
     {% endfor %}
-{% endfor %}
+{% endfor %}\
+{% set breaking_commits = commits | filter(attribute="breaking", value=true) -%}
+{% if breaking_commits %}
+    ### ⚡ BREAKING CHANGES
+
+    {% for commit in breaking_commits -%}
+        {% if commit.breaking_description -%}
+        - {{ commit.breaking_description | upper_first }}
+        {% endif -%}
+    {% endfor -%}
+{% endif %}
 """
 # Remove leading and trailing whitespaces from the changelog's body.
 trim = true

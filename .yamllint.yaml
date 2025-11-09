@@ -1,15 +1,17 @@
 ---
 extends: "default"
 
+ignore:
+  - "chart/templates/"
+  - "sealed-secret*"
+  - "chart/dist/"
+
 rules:
   line-length:
     max: 120
     level: "error"
   document-start:
     level: "error"
-  document-end:
-    level: "error"
   quoted-strings:
     quote-type: "double"
     level: "error"
-...

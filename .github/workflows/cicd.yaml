@@ -5,35 +5,87 @@ name: "CI/CD"
   push: {}
 
 jobs:
-  test-chart-job:
-    runs-on: "ubuntu-24.04"
-    container:
-      image: "alpine/helm:3.18.4@sha256:0864a0b7ccc4230d082ba44d038ad0a16619a9928647db273e3df78efa844851"
-    steps:
-      - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
-      - name: "Install helm-unittest"
-        run: "helm plugin install https://github.com/helm-unittest/helm-unittest.git"
-      - name: "Run helm unittest"
-        run: "helm unittest -f 'templates/*-test.yaml' ./chart"
-
   build-manifests-job:
     runs-on: "ubuntu-24.04"
     container:
-      image: "ghcr.io/helmfile/helmfile:v1.1.4@sha256:a49a91071567f3b3e5ee45e08bba25fe96b90d12c194ac10178c073453cd00f1"
+      image: "ghcr.io/helmfile/helmfile:v1.1.9@sha256:0bae88dc10b2c21794b6a07d0b47de9e93f75425ffbe27f22d5b65a15eb9b781"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
+        uses: "actions/checkout@v4.3.0"
       - name: "Build manifests"
         run: >
           helmfile template -f ./chart/helmfile.yaml
           --output-dir dist
           --output-dir-template '{{ .OutputDir }}'
       - name: "Upload manifests as artifact"
-        uses: "actions/upload-artifact@v4.6.2"
+        uses: "actions/upload-artifact@v5.0.0"
         with:
           name: "manifests"
           path: "chart/dist/grafaml/templates/"
+
+  lint-prettier-job:
+    runs-on: "ubuntu-24.04"
+    container:
+      image: "tmknom/prettier:3.6.2"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v4.3.0"
+      - name: "Run Prettier"
+        run: "prettier --check ."
+
+  lint-markdownlint-job:
+    runs-on: "ubuntu-24.04"
+    container:
+      image: "ghcr.io/igorshubovych/markdownlint-cli:v0.45.0"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v4.3.0"
+      - name: "Lint Markdown files"
+        run: "markdownlint '**/*.md'"
+
+  lint-yamllint-job:
+    runs-on: "ubuntu-24.04"
+    container:
+      image: "pipelinecomponents/yamllint:0.35.9"
+    needs:
+      - "build-manifests-job"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v4.3.0"
+      - name: "Download manifests"
+        uses: "actions/download-artifact@v6.0.0"
+        with:
+          name: "manifests"
+          path: "chart/dist/grafaml/templates/"
+      - name: "Lint manifests with yamllint"
+        run: "yamllint ."
+
+  scan-trufflehog-job:
+    runs-on: "ubuntu-24.04"
+    container:
+      image: "trufflesecurity/trufflehog:3.90.13"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v4.3.0"
+      - name: "Run TruffleHog scan"
+        run: "trufflehog git file://."
+
+  lint-yamllint-manifests-job:
+    runs-on: "ubuntu-24.04"
+    container:
+      image: "pipelinecomponents/yamllint:0.35.9"
+    needs:
+      - "build-manifests-job"
+    steps:
+      - name: "Check out repository"
+        uses: "actions/checkout@v4.3.0"
+      - name: "Download manifests"
+        uses: "actions/download-artifact@v6.0.0"
+        with:
+          name: "manifests"
+          path: "chart/dist/grafaml/templates/"
+      - name: "Lint yaml files"
+        run: "yamllint -c .yamllint-manifests.yaml ."
 
   lint-kube-score-job:
     runs-on: "ubuntu-24.04"
@@ -43,9 +95,9 @@ jobs:
       - "build-manifests-job"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
+        uses: "actions/checkout@v4.3.0"
       - name: "Download manifests"
-        uses: "actions/download-artifact@v4.3.0"
+        uses: "actions/download-artifact@v6.0.0"
         with:
           name: "manifests"
           path: "chart/dist/grafaml/templates/"
@@ -58,9 +110,9 @@ jobs:
       - "build-manifests-job"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
+        uses: "actions/checkout@v4.3.0"
       - name: "Download manifests"
-        uses: "actions/download-artifact@v4.3.0"
+        uses: "actions/download-artifact@v6.0.0"
         with:
           name: "manifests"
           path: "chart/dist/grafaml/templates/"
@@ -69,32 +121,17 @@ jobs:
         with:
           directory: "chart/dist/grafaml/templates/"
 
-  lint-yamllint-manifests-job:
+  test-chart-job:
     runs-on: "ubuntu-24.04"
     container:
-      image: "pipelinecomponents/yamllint:0.35.0"
-    needs:
-      - "build-manifests-job"
+      image: "alpine/helm:3.19.0@sha256:aef9b56f64e866207d9591d0abd8f6d767b36aadd12edf68f8a719716d9d29c9"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
-      - name: "Download manifests"
-        uses: "actions/download-artifact@v4.3.0"
-        with:
-          name: "manifests"
-          path: "chart/dist/grafaml/templates/"
-      - name: "Lint manifests with yamllint"
-        run: "yamllint -c .yamllint-manifests.yaml chart/dist/grafaml/templates/*.yaml"
-
-  pre-commit-job:
-    runs-on: "ubuntu-24.04"
-    steps:
-      - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
-      - name: "Setup python"
-        uses: "actions/setup-python@v5.6.0"
-      - name: "Run pre-commit"
-        uses: "pre-commit/action@v3.0.1"
+        uses: "actions/checkout@v4.3.0"
+      - name: "Install helm-unittest"
+        run: "helm plugin install https://github.com/helm-unittest/helm-unittest.git"
+      - name: "Run helm unittest"
+        run: "helm unittest -f 'templates/*-test.yaml' ./chart"
 
   determine-version-job:
     runs-on: "ubuntu-24.04"
@@ -102,7 +139,7 @@ jobs:
       version: "${{ steps.get_version.outputs.version }}"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
+        uses: "actions/checkout@v4.3.0"
         with:
           fetch-depth: 0
       - name: "Setup verscout"
@@ -126,18 +163,20 @@ jobs:
   package-chart-job:
     runs-on: "ubuntu-24.04"
     container:
-      image: "alpine/helm:3.18.4@sha256:0864a0b7ccc4230d082ba44d038ad0a16619a9928647db273e3df78efa844851"
+      image: "alpine/helm:3.19.0@sha256:aef9b56f64e866207d9591d0abd8f6d767b36aadd12edf68f8a719716d9d29c9"
     needs:
       - "determine-version-job"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
+        uses: "actions/checkout@v4.3.0"
+      - name: "Copy README.md to chart directory"
+        run: "cp ./README.md ./chart/README.md"
       - name: "Package Helm chart"
         run: >-
           helm package chart
           --version "${{ needs.determine-version-job.outputs.version }}"
       - name: "Upload packaged chart"
-        uses: "actions/upload-artifact@v4.6.2"
+        uses: "actions/upload-artifact@v5.0.0"
         with:
           name: "grafaml-chart"
           path: "grafaml-${{ needs.determine-version-job.outputs.version }}.tgz"
@@ -145,7 +184,7 @@ jobs:
   publish-chart-job:
     runs-on: "ubuntu-24.04"
     container:
-      image: "alpine/helm:3.18.4@sha256:0864a0b7ccc4230d082ba44d038ad0a16619a9928647db273e3df78efa844851"
+      image: "alpine/helm:3.19.0@sha256:aef9b56f64e866207d9591d0abd8f6d767b36aadd12edf68f8a719716d9d29c9"
     permissions:
       packages: "write"
     needs:
@@ -154,9 +193,9 @@ jobs:
     if: "needs.determine-version-job.outputs.VERSION != ''"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
+        uses: "actions/checkout@v4.3.0"
       - name: "Download packaged chart"
-        uses: "actions/download-artifact@v4.3.0"
+        uses: "actions/download-artifact@v6.0.0"
         with:
           name: "grafaml-chart"
       - name: "Login to helm registry"
@@ -175,24 +214,23 @@ jobs:
       contents: "write"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.2.2"
+        uses: "actions/checkout@v4.3.0"
         with:
           fetch-depth: 0
       - name: "Download packaged chart"
-        uses: "actions/download-artifact@v4.3.0"
+        uses: "actions/download-artifact@v6.0.0"
         with:
           name: "grafaml-chart"
       - name: "Generate release notes"
-        uses: "orhun/git-cliff-action@v4.5.1"
+        uses: "orhun/git-cliff-action@v4.6.0"
         with:
           args: "--tag ${{ needs.determine-version-job.outputs.VERSION }} --unreleased --strip header"
         env:
           OUTPUT: "release-notes.md"
       - name: "Create GitHub Release"
-        uses: "softprops/action-gh-release@v2.3.2"
+        uses: "softprops/action-gh-release@v2.4.2"
         with:
           tag_name: "${{ needs.determine-version-job.outputs.VERSION }}"
           body_path: "release-notes.md"
           files: "grafaml-${{ needs.determine-version-job.outputs.version }}.tgz"
           draft: true
-...
