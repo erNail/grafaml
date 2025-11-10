@@ -11,7 +11,7 @@ jobs:
       image: "ghcr.io/helmfile/helmfile:v1.1.9@sha256:0bae88dc10b2c21794b6a07d0b47de9e93f75425ffbe27f22d5b65a15eb9b781"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.3.0"
+        uses: "actions/checkout@v5.0.0"
       - name: "Build manifests"
         run: >
           helmfile template -f ./chart/helmfile.yaml
@@ -29,7 +29,7 @@ jobs:
       image: "tmknom/prettier:3.6.2"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.3.0"
+        uses: "actions/checkout@v5.0.0"
       - name: "Run Prettier"
         run: "prettier --check ."
 
@@ -39,7 +39,7 @@ jobs:
       image: "ghcr.io/igorshubovych/markdownlint-cli:v0.45.0"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.3.0"
+        uses: "actions/checkout@v5.0.0"
       - name: "Lint Markdown files"
         run: "markdownlint '**/*.md'"
 
@@ -51,7 +51,7 @@ jobs:
       - "build-manifests-job"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.3.0"
+        uses: "actions/checkout@v5.0.0"
       - name: "Download manifests"
         uses: "actions/download-artifact@v6.0.0"
         with:
@@ -66,7 +66,7 @@ jobs:
       image: "trufflesecurity/trufflehog:3.90.13"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.3.0"
+        uses: "actions/checkout@v5.0.0"
       - name: "Run TruffleHog scan"
         run: "trufflehog git file://."
 
@@ -78,7 +78,7 @@ jobs:
       - "build-manifests-job"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.3.0"
+        uses: "actions/checkout@v5.0.0"
       - name: "Download manifests"
         uses: "actions/download-artifact@v6.0.0"
         with:
@@ -95,7 +95,7 @@ jobs:
       - "build-manifests-job"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.3.0"
+        uses: "actions/checkout@v5.0.0"
       - name: "Download manifests"
         uses: "actions/download-artifact@v6.0.0"
         with:
@@ -110,7 +110,7 @@ jobs:
       - "build-manifests-job"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.3.0"
+        uses: "actions/checkout@v5.0.0"
       - name: "Download manifests"
         uses: "actions/download-artifact@v6.0.0"
         with:
@@ -127,7 +127,7 @@ jobs:
       image: "alpine/helm:3.19.0@sha256:aef9b56f64e866207d9591d0abd8f6d767b36aadd12edf68f8a719716d9d29c9"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.3.0"
+        uses: "actions/checkout@v5.0.0"
       - name: "Install helm-unittest"
         run: "helm plugin install https://github.com/helm-unittest/helm-unittest.git"
       - name: "Run helm unittest"
@@ -139,7 +139,7 @@ jobs:
       version: "${{ steps.get_version.outputs.version }}"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.3.0"
+        uses: "actions/checkout@v5.0.0"
         with:
           fetch-depth: 0
       - name: "Setup verscout"
@@ -168,7 +168,7 @@ jobs:
       - "determine-version-job"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.3.0"
+        uses: "actions/checkout@v5.0.0"
       - name: "Copy README.md to chart directory"
         run: "cp ./README.md ./chart/README.md"
       - name: "Package Helm chart"
@@ -193,7 +193,7 @@ jobs:
     if: "needs.determine-version-job.outputs.VERSION != ''"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.3.0"
+        uses: "actions/checkout@v5.0.0"
       - name: "Download packaged chart"
         uses: "actions/download-artifact@v6.0.0"
         with:
@@ -214,7 +214,7 @@ jobs:
       contents: "write"
     steps:
       - name: "Check out repository"
-        uses: "actions/checkout@v4.3.0"
+        uses: "actions/checkout@v5.0.0"
         with:
           fetch-depth: 0
       - name: "Download packaged chart"
