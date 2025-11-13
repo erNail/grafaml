@@ -63,7 +63,7 @@ jobs:
   scan-trufflehog-job:
     runs-on: "ubuntu-24.04"
     container:
-      image: "trufflesecurity/trufflehog:3.90.13"
+      image: "trufflesecurity/trufflehog:3.91.0"
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@v5.0.0"
