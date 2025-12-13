@@ -18,7 +18,7 @@ jobs:
           --output-dir dist
           --output-dir-template '{{ .OutputDir }}'
       - name: "Upload manifests as artifact"
-        uses: "actions/upload-artifact@v5.0.0"
+        uses: "actions/upload-artifact@v6.0.0"
         with:
           name: "manifests"
           path: "chart/dist/grafaml/templates/"
@@ -176,7 +176,7 @@ jobs:
           helm package chart
           --version "${{ needs.determine-version-job.outputs.version }}"
       - name: "Upload packaged chart"
-        uses: "actions/upload-artifact@v5.0.0"
+        uses: "actions/upload-artifact@v6.0.0"
         with:
           name: "grafaml-chart"
           path: "grafaml-${{ needs.determine-version-job.outputs.version }}.tgz"
