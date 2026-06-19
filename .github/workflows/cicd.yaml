@@ -46,7 +46,7 @@ jobs:
   lint-yamllint-job:
     runs-on: "ubuntu-24.04"
     container:
-      image: "pipelinecomponents/yamllint:0.35.9"
+      image: "pipelinecomponents/yamllint:0.35.13"
     needs:
       - "build-manifests-job"
     steps:
@@ -73,7 +73,7 @@ jobs:
   lint-yamllint-manifests-job:
     runs-on: "ubuntu-24.04"
     container:
-      image: "pipelinecomponents/yamllint:0.35.9"
+      image: "pipelinecomponents/yamllint:0.35.13"
     needs:
       - "build-manifests-job"
     steps:
