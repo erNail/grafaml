@@ -36,7 +36,7 @@ jobs:
   lint-markdownlint-job:
     runs-on: "ubuntu-24.04"
     container:
-      image: "ghcr.io/igorshubovych/markdownlint-cli:v0.45.0"
+      image: "ghcr.io/igorshubovych/markdownlint-cli:v0.49.1"
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@v5.0.0"
