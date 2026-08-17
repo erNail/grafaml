@@ -8,7 +8,7 @@ jobs:
   build-manifests-job:
     runs-on: "ubuntu-24.04"
     container:
-      image: "ghcr.io/helmfile/helmfile:v1.1.9@sha256:0bae88dc10b2c21794b6a07d0b47de9e93f75425ffbe27f22d5b65a15eb9b781"
+      image: "ghcr.io/helmfile/helmfile:v1.7.4@sha256:f20e612d5a98a942f62cf7e63621cde9614eaffabe538fb93c8a9f836cac4469"
     steps:
       - name: "Check out repository"
         uses: "actions/checkout@v5.0.0"
